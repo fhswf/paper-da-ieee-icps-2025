@@ -2,17 +2,18 @@
 ## -- Paper      : Online-adaptive data stream processing via cascaded and reverse adaptation
 ## -- Conference : IEEE Industrial Cyber Physical Systems (ICPS) 2025
 ## -- Author     : Detlef Arend
-## -- Module     : demo01_online_normalization_with_ring_buffer.py
+## -- Module     : demo01_auto_renormalization_of_drifting_stream_data_nd.py
 ## -------------------------------------------------------------------------------------------------
 ## -- History :
 ## -- yyyy-mm-dd  Ver.      Auth.    Description
 ## -- 2024-10-28  0.0.0     DA       Creation
+## -- 2024-10-29  1.0.0     DA       Initial implementation
 ## -------------------------------------------------------------------------------------------------
 
 """
-Ver. 0.0.0 (2023-01-01)
+Ver. 1.0.0 (2024-10-29)
 
-This module demonstrates ...
+This module demonstrates 
 
 You will learn:
 
@@ -31,43 +32,53 @@ import numpy as np
 from mlpro.bf.various import Log
 from mlpro.bf.plot import PlotSettings
 from mlpro.bf.ops import Mode
+from mlpro.bf.math.properties import Properties
 from mlpro.bf.streams import *
 from mlpro.bf.streams.streams import StreamMLProClusterGenerator
 from mlpro.bf.streams.tasks import RingBuffer
 from mlpro.oa.streams import OATask, OAWorkflow, OAScenario
-from mlpro.oa.streams.tasks import BoundaryDetector, NormalizerMinMax
+from mlpro.oa.streams.tasks import BoundaryDetector, Normalizer, NormalizerMinMax
+from mlpro.oa.streams.tasks.clusteranalyzers.clusters.properties import Centroid, cprop_centroid
 
 
 
 ## -------------------------------------------------------------------------------------------------
 ## -------------------------------------------------------------------------------------------------
-class MovingAverage (OATask):
+class MovingAverage (OATask, Properties):
 
     C_NAME              = 'Moving average'
+
+    C_PROPERTIES        = [ cprop_centroid ]
 
 ## -------------------------------------------------------------------------------------------------
     def __init__( self, 
                   p_name = None, 
                   p_range_max = StreamTask.C_RANGE_THREAD, 
-                  p_ada = True, 
-                  p_buffer_size = 0, 
-                  p_duplicate_data = False, 
-                  p_visualize = False, 
+                  p_ada : bool = True, 
+                  p_buffer_size : int = 0, 
+                  p_duplicate_data : bool = False, 
+                  p_visualize : bool = False, 
                   p_logging = Log.C_LOG_ALL, 
+                  p_remove_obs : bool = True,
                   **p_kwargs ):
         
-        super().__init__( p_name = p_name, 
-                          p_range_max = p_range_max, 
-                          p_ada = p_ada, 
-                          p_buffer_size = p_buffer_size, 
-                          p_duplicate_data = p_duplicate_data, 
-                          p_visualize = p_visualize, 
-                          p_logging = p_logging, 
-                          **p_kwargs )
-        
+        Properties.__init__( self, p_visualize = p_visualize )
+       
+        OATask.__init__( self, 
+                         p_name = p_name, 
+                         p_range_max = p_range_max, 
+                         p_ada = p_ada, 
+                         p_buffer_size = p_buffer_size, 
+                         p_duplicate_data = p_duplicate_data, 
+                         p_visualize = p_visualize, 
+                         p_logging = p_logging, 
+                         **p_kwargs )
+                 
         self._moving_avg = None
         self._num_inst   = 0
-        
+        self._remove_obs = p_remove_obs
+        self._legend     = True
+
 
 ## -------------------------------------------------------------------------------------------------
     def _run(self, p_inst):
@@ -90,15 +101,14 @@ class MovingAverage (OATask):
 
                 self._num_inst += 1
 
-            elif inst_type == InstTypeDel:
-                self._moving_avg = ( self._moving_avg * self._num_inst - feature_data ) / ( self._num_inst -1 )
-                self._num_inst -= 1
+            elif ( inst_type == InstTypeDel ) and self._remove_obs:
+                self._moving_avg = ( self._moving_avg * self._num_inst - feature_data ) / ( self._num_inst - 1 )
+                self._num_inst  -= 1
 
             if inst_id > inst_avg_id:
                 inst_avg_id     = inst_id
                 inst_avg_tstamp = inst.tstamp
                 feature_set     = inst.get_feature_data().get_related_set()
-
 
         if inst_avg_id == -1: return
 
@@ -115,14 +125,52 @@ class MovingAverage (OATask):
 
         p_inst[inst_avg.id] = ( InstTypeNew, inst_avg )
 
-
-
-    
+        self.centroid.value = self._moving_avg
+ 
 
 ## -------------------------------------------------------------------------------------------------
-    def _renormalize(self, p_normalizer):
-        pass
-    
+    def _renormalize(self, p_normalizer: Normalizer):
+        try:
+            self._moving_avg = p_normalizer.renormalize( p_data = self._moving_avg.copy() )
+            self.log(Log.C_LOG_TYPE_W, 'Moving avg renormalized')
+        except:
+            pass
+
+
+## -------------------------------------------------------------------------------------------------
+    def init_plot(self, p_figure = None, p_plot_settings = None):
+        OATask.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
+        Properties.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
+
+
+## -------------------------------------------------------------------------------------------------
+    def update_plot(self, p_inst = None, **p_kwargs):
+        OATask.update_plot( self, p_inst = p_inst, **p_kwargs )
+        Properties.update_plot( self, p_inst = p_inst, **p_kwargs )
+        if self._legend:
+            try:
+                self.centroid.get_plot_settings().axes.get_legend().remove()
+                self._legend = False
+            except:
+                pass
+
+
+## -------------------------------------------------------------------------------------------------
+    def remove_plot(self, p_refresh = True):
+        OATask.remove_plot(self, p_refresh)
+        Properties.remove_plot(self, p_refresh)
+
+
+## -------------------------------------------------------------------------------------------------
+    def _finalize_plot_view(self, p_inst_ref):
+        ps_old = self.get_plot_settings().copy()
+        OATask._finalize_plot_view(self,p_inst_ref)
+        ps_new = self.get_plot_settings()
+
+        if ps_new.view != ps_old.view:
+            self.centroid._plot_initialized = False
+            Properties.init_plot( self, p_figure = self._figure, p_plot_settings = ps_new )
+ 
 
 
 
@@ -171,7 +219,7 @@ class DemoScenario (OAScenario):
 
         # 2.3 Add a boundary detector and connect to the ring buffer
         task_bd = BoundaryDetector( p_name = 'T2 - Boundary detector', 
-                                    p_ada = True, 
+                                    p_ada = p_ada, 
                                     p_visualize = p_visualize,
                                     p_logging = p_logging )
 
@@ -180,7 +228,7 @@ class DemoScenario (OAScenario):
 
         # 2.4 Add a MinMax-Normalizer and connect to the boundary detector
         task_norm_minmax = NormalizerMinMax( p_name = 'T3 - MinMax normalizer', 
-                                             p_ada = True, 
+                                             p_ada = p_ada, 
                                              p_duplicate_data = True,
                                              p_visualize = p_visualize, 
                                              p_logging = p_logging )
@@ -190,27 +238,37 @@ class DemoScenario (OAScenario):
 
         # 2.5 Add a moving average task for raw data behind the sliding window
         task_ma1 = MovingAverage( p_name = 'T4 - Moving average (raw)', 
-                                  p_ada = True,
+                                  p_ada = p_ada,
                                   p_visualize = p_visualize,
                                   p_logging = p_logging )
         
         workflow.add_task( p_task = task_ma1, p_pred_tasks = [ task_window ] )
 
         # 2.6 Add a moving average task for raw data behind the minmax-normalizer without reverse adaptation
-        task_ma1 = MovingAverage( p_name = 'T5 - Moving average (normalized)', 
-                                  p_ada = True,
+        task_ma2 = MovingAverage( p_name = 'T5 - Moving average (normalized +)', 
+                                  p_ada = p_ada,
                                   p_visualize = p_visualize,
-                                  p_logging = p_logging )
+                                  p_logging = p_logging,
+                                  p_remove_obs = False )
         
-        workflow.add_task( p_task = task_ma1, p_pred_tasks = [ task_norm_minmax ] )
+        workflow.add_task( p_task = task_ma2, p_pred_tasks = [ task_norm_minmax ] )
 
-        # 2.5 Add a moving average task for raw data behind the sliding window
-        task_ma1 = MovingAverage( p_name = 'T6 - Moving average (renormalized)', 
-                                  p_ada = True,
+        # 2.7 Add a moving average task for raw data behind the minmax-normalizer without reverse adaptation
+        task_ma3 = MovingAverage( p_name = 'T6 - Moving average (normalized +/-)', 
+                                  p_ada = p_ada,
                                   p_visualize = p_visualize,
                                   p_logging = p_logging )
         
-        workflow.add_task( p_task = task_ma1, p_pred_tasks = [ task_norm_minmax ] )
+        workflow.add_task( p_task = task_ma3, p_pred_tasks = [ task_norm_minmax ] )
+
+        # 2.8 Add a moving average task for raw data behind the sliding window
+        task_ma4 = MovingAverage( p_name = 'T7 - Moving average (renormalized +/-)', 
+                                  p_ada = p_ada,
+                                  p_visualize = p_visualize,
+                                  p_logging = p_logging )
+        
+        workflow.add_task( p_task = task_ma4, p_pred_tasks = [ task_norm_minmax ] )
+        task_norm_minmax.register_event_handler( p_event_id = NormalizerMinMax.C_EVENT_ADAPTED, p_event_handler = task_ma4.renormalize_on_event )
 
 
         # 3 Return stream and workflow
@@ -226,7 +284,6 @@ cycle_limit     = 500
 step_rate       = 1
 view            = PlotSettings.C_VIEW_ND
 view_autoselect = False
-
 
 
 # 2 Instantiate the stream scenario
@@ -253,6 +310,6 @@ myscenario.run()
 tp_after = datetime.now()
 tp_delta = tp_after - tp_before
 duraction_sec = ( tp_delta.seconds * 1000000 + tp_delta.microseconds + 1 ) / 1000000
-myscenario.log(Log.C_LOG_TYPE_S, 'Duration [sec]:', round(duraction_sec,2), ', Cycles/sec:', round(cycle_limit/duraction_sec,2))
+myscenario.log(Log.C_LOG_TYPE_W, 'Duration [sec]:', round(duraction_sec,2), ', Cycles/sec:', round(cycle_limit/duraction_sec,2))
 
 input('Press ENTER to exit...')
