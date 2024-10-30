@@ -2,7 +2,7 @@
 ## -- Paper      : Online-adaptive data stream processing via cascaded and reverse adaptation
 ## -- Conference : IEEE Industrial Cyber Physical Systems (ICPS) 2025
 ## -- Author     : Detlef Arend
-## -- Module     : demo01_auto_renormalization_of_drifting_stream_data_nd.py
+## -- Module     : demo01_auto_renormalization_of_drifting_stream_data.py
 ## -------------------------------------------------------------------------------------------------
 ## -- History :
 ## -- yyyy-mm-dd  Ver.      Auth.    Description
@@ -179,19 +179,39 @@ class MovingAverage (OATask, Properties):
 ## -------------------------------------------------------------------------------------------------
 class DemoScenario (OAScenario):
 
-    C_NAME = 'OA normalization'
+    C_NAME = 'Normalized drifting data'
+
+## -------------------------------------------------------------------------------------------------
+    def __init__( self, 
+                  p_mode = Mode.C_MODE_SIM, 
+                  p_ada : bool = True, 
+                  p_cycle_limit : int = 0, 
+                  p_num_features : int = 2,
+                  p_num_inst : int = 1000,
+                  p_visualize : bool = False, 
+                  p_logging = Log.C_LOG_ALL ):
+        
+        self._num_features  = p_num_features
+        self._num_inst      = p_num_inst
+
+        super().__init__( p_mode = p_mode, 
+                          p_ada = p_ada, 
+                          p_cycle_limit = p_cycle_limit, 
+                          p_visualize = p_visualize, 
+                          p_logging = p_logging )
+
 
 ## -------------------------------------------------------------------------------------------------
     def _setup(self, p_mode, p_ada: bool, p_visualize: bool, p_logging):
 
         # 1 Prepare a native stream from MLPro
-        stream = StreamMLProClusterGenerator( p_num_dim = 2,
-                                              p_num_instances = 1000,
+        stream = StreamMLProClusterGenerator( p_num_dim = self._num_features,
+                                              p_num_instances = self._num_inst,
                                               p_num_clusters = 1,
                                               p_seed = 13,
                                               p_radii = [200,200],
                                               p_velocities = [5],
-                                              p_split_and_merge_of_clusters = True,
+                                              p_split_and_merge_of_clusters = False,
                                               p_num_of_clusters_for_split_and_merge = 2,
                                               p_logging = Log.C_LOG_NOTHING )
 
@@ -277,31 +297,69 @@ class DemoScenario (OAScenario):
 
 
 
-# 1 Configuration of the demo
-logging         = Log.C_LOG_WE #ALL
-visualize       = True
-cycle_limit     = 500
+# 1 Demo setup
+
+# 1.1 Default values
+num_features    = 2
+num_inst        = 500
+logging         = Log.C_LOG_WE
 step_rate       = 1
 view            = PlotSettings.C_VIEW_ND
-view_autoselect = False
+view_autoselect = True
+
+# 1.2 Welcome message
+print('\n\n-----------------------------------------------------------------------------------------')
+print('Publication: "Online-adaptive data stream processing via cascaded and reverse adaptation"')
+print('Conference : IEEE Industrial Cyber Physical Systems (ICPS) 2025, Emden, Germany')
+print('Authors    : Dipl.-Inform. Detlef Arend, Prof. Dr.-Ing. Andreas Schwung')
+print('Affiliation: South Westphalia University of Applied Sciences, Germany')
+print('Sample     : Auto-renormalization of drifting stream data')
+print('-----------------------------------------------------------------------------------------\n')
+
+# 1.3 Get cycle limit from user
+i = input(f'Number of stream instances (press ENTER for {num_inst}): ')
+if i != '': num_inst = int(i)
+
+# 1.4 Get visualization from user
+visualize = input('Visualization Y/N (press ENTER for Y): ').upper() != 'N'
+
+# 1.5 Get number of features and visualization step rate from user
+if visualize:
+    i = input('Number of features: (press ENTER for 2) ')
+    if i != '': num_features = int(i) 
+
+    i = input(f'Visualization step rate (press ENTER for {step_rate}): ')
+    if i != '': step_rate = int(i)
+
+# 1.6 Get log level from user
+i = input('Log level: "A"=All, "W"=Warnings only, "N"=Nothing (press ENTER for "W"): ').upper() 
+if i == 'A': logging = Log.C_LOG_ALL
+elif i == 'N': logging = Log.C_LOG_NOTHING
+
 
 
 # 2 Instantiate the stream scenario
 myscenario = DemoScenario( p_mode = Mode.C_MODE_REAL,
-                           p_cycle_limit = cycle_limit,
+                           p_cycle_limit = num_inst,
+                           p_num_features = num_features,
+                           p_num_inst = num_inst,
                            p_visualize = visualize,
                            p_logging = logging )
 
 
+
 # 3 Reset and run own stream scenario
 myscenario.reset()
-myscenario.init_plot( p_plot_settings=PlotSettings( p_view = view,
-                                                    p_view_autoselect = view_autoselect,
-                                                    p_plot_horizon = 100,
-                                                    p_data_horizon = 150,
-                                                    p_step_rate = step_rate ) )
 
-input('\nPlease arrange all windows and press ENTER to start stream processing...')
+if visualize:
+    myscenario.init_plot( p_plot_settings=PlotSettings( p_view = view,
+                                                        p_view_autoselect = view_autoselect,
+                                                        p_plot_horizon = 100,
+                                                        p_data_horizon = 150,
+                                                        p_step_rate = step_rate ) )
+
+    input('\n\nPlease arrange all windows and press ENTER to start stream processing...')
+
 
 
 # 4 Some final statistics
@@ -310,6 +368,7 @@ myscenario.run()
 tp_after = datetime.now()
 tp_delta = tp_after - tp_before
 duraction_sec = ( tp_delta.seconds * 1000000 + tp_delta.microseconds + 1 ) / 1000000
-myscenario.log(Log.C_LOG_TYPE_W, 'Duration [sec]:', round(duraction_sec,2), ', Cycles/sec:', round(cycle_limit/duraction_sec,2))
+myscenario.switch_logging( p_logging = Log.C_LOG_TYPE_W)
+myscenario.log(Log.C_LOG_TYPE_W, 'Duration [sec]:', round(duraction_sec,2), ', Cycles/sec:', round(num_inst/duraction_sec,2))
 
 input('Press ENTER to exit...')
