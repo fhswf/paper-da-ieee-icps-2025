@@ -33,12 +33,12 @@ from mlpro.bf.various import Log
 from mlpro.bf.plot import PlotSettings
 from mlpro.bf.ops import Mode
 from mlpro.bf.math.properties import Properties
+from mlpro.bf.math.geometry import cprop_crosshair
 from mlpro.bf.streams import *
 from mlpro.bf.streams.streams import StreamMLProClusterGenerator
 from mlpro.bf.streams.tasks import RingBuffer
 from mlpro.oa.streams import OATask, OAWorkflow, OAScenario
 from mlpro.oa.streams.tasks import BoundaryDetector, Normalizer, NormalizerMinMax
-from mlpro.oa.streams.tasks.clusteranalyzers.clusters.properties import Centroid, cprop_centroid
 
 
 
@@ -48,7 +48,7 @@ class MovingAverage (OATask, Properties):
 
     C_NAME              = 'Moving average'
 
-    C_PROPERTIES        = [ cprop_centroid ]
+    C_PROPERTIES        = [ cprop_crosshair ]   
 
 ## -------------------------------------------------------------------------------------------------
     def __init__( self, 
@@ -74,10 +74,10 @@ class MovingAverage (OATask, Properties):
                          p_logging = p_logging, 
                          **p_kwargs )
                  
-        self._moving_avg = None
-        self._num_inst   = 0
-        self._remove_obs = p_remove_obs
-        self._legend     = True
+        self._moving_avg     = None
+        self._num_inst       = 0
+        self._remove_obs     = p_remove_obs
+        self.crosshair.color = 'red'
 
 
 ## -------------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ class MovingAverage (OATask, Properties):
 
         p_inst[inst_avg.id] = ( InstTypeNew, inst_avg )
 
-        self.centroid.value = self._moving_avg
+        self.crosshair.value = self._moving_avg
  
 
 ## -------------------------------------------------------------------------------------------------
@@ -147,12 +147,6 @@ class MovingAverage (OATask, Properties):
     def update_plot(self, p_inst = None, **p_kwargs):
         OATask.update_plot( self, p_inst = p_inst, **p_kwargs )
         Properties.update_plot( self, p_inst = p_inst, **p_kwargs )
-        if self._legend:
-            try:
-                self.centroid.get_plot_settings().axes.get_legend().remove()
-                self._legend = False
-            except:
-                pass
 
 
 ## -------------------------------------------------------------------------------------------------
@@ -168,7 +162,7 @@ class MovingAverage (OATask, Properties):
         ps_new = self.get_plot_settings()
 
         if ps_new.view != ps_old.view:
-            self.centroid._plot_initialized = False
+            self.crosshair._plot_initialized = False
             Properties.init_plot( self, p_figure = self._figure, p_plot_settings = ps_new )
  
 
@@ -285,7 +279,8 @@ class DemoScenario (OAScenario):
         task_ma4 = MovingAverage( p_name = 'T7 - Moving average (renormalized +/-)', 
                                   p_ada = p_ada,
                                   p_visualize = p_visualize,
-                                  p_logging = p_logging )
+                                  p_logging = p_logging,
+                                  p_centroid_crosshair_labels = False )
         
         workflow.add_task( p_task = task_ma4, p_pred_tasks = [ task_norm_minmax ] )
         task_norm_minmax.register_event_handler( p_event_id = NormalizerMinMax.C_EVENT_ADAPTED, p_event_handler = task_ma4.renormalize_on_event )
@@ -303,7 +298,7 @@ class DemoScenario (OAScenario):
 num_features    = 2
 num_inst        = 500
 logging         = Log.C_LOG_WE
-step_rate       = 1
+step_rate       = 2
 view            = PlotSettings.C_VIEW_ND
 view_autoselect = True
 
