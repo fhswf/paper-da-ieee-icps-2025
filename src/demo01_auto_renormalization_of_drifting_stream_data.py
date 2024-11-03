@@ -231,8 +231,17 @@ class DemoScenario (OAScenario):
         
         workflow.add_task( p_task = task_window )
 
-        # 2.3 Add a boundary detector and connect to the ring buffer
-        task_bd = BoundaryDetector( p_name = 'T2 - Boundary detector', 
+
+        # 2.3 Add a moving average task for raw data behind the sliding window
+        task_ma1 = MovingAverage( p_name = 'T2 - Moving average (raw)', 
+                                  p_ada = p_ada,
+                                  p_visualize = p_visualize,
+                                  p_logging = p_logging )
+        
+        workflow.add_task( p_task = task_ma1, p_pred_tasks = [ task_window ] )
+
+        # 2.4 Add a boundary detector and connect to the ring buffer
+        task_bd = BoundaryDetector( p_name = 'T3 - Boundary detector', 
                                     p_ada = p_ada, 
                                     p_visualize = p_visualize,
                                     p_logging = p_logging )
@@ -241,7 +250,7 @@ class DemoScenario (OAScenario):
         workflow.add_task( p_task = task_bd, p_pred_tasks = [task_window] )
 
         # 2.4 Add a MinMax-Normalizer and connect to the boundary detector
-        task_norm_minmax = NormalizerMinMax( p_name = 'T3 - MinMax normalizer', 
+        task_norm_minmax = NormalizerMinMax( p_name = 'T4 - MinMax normalizer', 
                                              p_ada = p_ada, 
                                              p_duplicate_data = True,
                                              p_visualize = p_visualize, 
@@ -249,14 +258,6 @@ class DemoScenario (OAScenario):
 
         task_bd.register_event_handler( p_event_id = BoundaryDetector.C_EVENT_ADAPTED, p_event_handler = task_norm_minmax.adapt_on_event )
         workflow.add_task( p_task = task_norm_minmax, p_pred_tasks = [task_bd] )
-
-        # 2.5 Add a moving average task for raw data behind the sliding window
-        task_ma1 = MovingAverage( p_name = 'T4 - Moving average (raw)', 
-                                  p_ada = p_ada,
-                                  p_visualize = p_visualize,
-                                  p_logging = p_logging )
-        
-        workflow.add_task( p_task = task_ma1, p_pred_tasks = [ task_window ] )
 
         # 2.6 Add a moving average task for raw data behind the minmax-normalizer without reverse adaptation
         task_ma2 = MovingAverage( p_name = 'T5 - Moving average (normalized +)', 
