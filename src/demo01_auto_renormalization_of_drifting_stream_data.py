@@ -249,7 +249,7 @@ class DemoScenario (OAScenario):
         task_window.register_event_handler( p_event_id = RingBuffer.C_EVENT_DATA_REMOVED, p_event_handler = task_bd.adapt_on_event )
         workflow.add_task( p_task = task_bd, p_pred_tasks = [task_window] )
 
-        # 2.4 Add a MinMax-Normalizer and connect to the boundary detector
+        # 2.5 Add a MinMax-Normalizer and connect to the boundary detector
         task_norm_minmax = NormalizerMinMax( p_name = 'T4 - MinMax normalizer', 
                                              p_ada = p_ada, 
                                              p_duplicate_data = True,
