@@ -1,8 +1,9 @@
 ## -------------------------------------------------------------------------------------------------
 ## -- Paper      : Online-adaptive data stream processing via cascaded and reverse adaptation
 ## -- Conference : IEEE Industrial Cyber Physical Systems (ICPS) 2025
-## -- Author     : Detlef Arend
-## -- Module     : demo01_auto_renormalization_of_drifting_stream_data.py
+## -- Authors    : Detlef Arend, Andreas Schwung
+## -- Development: Detlef Arend
+## -- Module     : sample - auto-renormalization of drifting stream data.py
 ## -------------------------------------------------------------------------------------------------
 ## -- History :
 ## -- yyyy-mm-dd  Ver.      Auth.    Description
