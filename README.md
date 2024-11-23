@@ -1,8 +1,8 @@
 [![DOI](https://zenodo.org/badge/878929671.svg)](https://doi.org/10.5281/zenodo.13995893)
 
 # Paper IEEE ICPS 2025 - Arend/Schwung - "Online-adaptive data stream processing via cascaded and reverse adaptation"
-Dieses Repository beinhaltet das Beispielprogramm aus Kapitel "IV. SAMPLE: AUTO-RENORMALIZATION OF DRIFTING
-STREAM DATA" der obigen Publikation.
+This repository provides the sample program described in Section _**IV. SAMPLE: AUTO-RENORMALIZATION OF DRIFTING
+STREAM DATA**_ of the above conference paper.
 
 ## How to execute
 
@@ -31,6 +31,13 @@ STREAM DATA" der obigen Publikation.
 
 ## See also
 
+[8th IEEE International Conference on Industrial Cyber-Physical Systems (ICPS)](https://icps2025.ieee-ies.org/)
+
 [MLPro - the integrative middleware framework for standardized machine learning in Python](https://mlpro.readthedocs.io/)
 
 [South Westphalia University of Applied Sciences, Dept. of Automation Technology and Learning Systems](https://www.fh-swf.de/de/forschung___transfer_4/labore_3/labs/labor_fuer_automatisierungstechnik__soest_1/standardseite_57.php)
+
+
+## Contact
+
+[Detlef Arend](mailto:arend.detlef@fh-swf.de?subject=Your%20paper%20on%20the%20ieee%20icsp%202025%20conference)
