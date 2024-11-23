@@ -6,9 +6,11 @@ STREAM DATA" der obigen Publikation.
 
 ## How to execute
 
-[Python packages needed](requirements.txt)
+[Step 1: Install these Python packages](requirements.txt)
 
-[Manual arrangement of the plot windows](video/window_arrangement.gif)
+[Step 2: Execute the sample program and follow the hints on the screen](src/sample_auto-renormalization_of_drifting_stream_data.py)
+
+[Step 3: Manually arrange the plot windows and press enter](video/window_arrangement.gif)
 
 ## Sample with 2 features (refers to the result plots in Fig. 3)
 
