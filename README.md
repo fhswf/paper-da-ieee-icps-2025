@@ -40,4 +40,4 @@ STREAM DATA**_ of the above conference paper.
 
 ## Contact
 
-[Detlef Arend](mailto:arend.detlef@fh-swf.de?subject=Your%20paper%20on%20the%20ieee%20icsp%202025%20conference)
+Detlef Arend: [email](mailto:arend.detlef@fh-swf.de?subject=Your%20paper%20on%20the%20ieee%20icsp%202025%20conference) [website](https://www.fh-swf.de/de/ueber_uns/standorte_4/soest_4/fb_eet/doz_eet/mitarbeiter_4/arend/index.php)
