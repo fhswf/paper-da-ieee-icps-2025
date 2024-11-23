@@ -3,26 +3,28 @@
 ## -- Conference : IEEE Industrial Cyber Physical Systems (ICPS) 2025
 ## -- Authors    : Detlef Arend, Andreas Schwung
 ## -- Development: Detlef Arend
-## -- Module     : sample - auto-renormalization of drifting stream data.py
+## -- Module     : sample_auto-renormalization_of_drifting_stream_data.py
 ## -------------------------------------------------------------------------------------------------
 ## -- History :
 ## -- yyyy-mm-dd  Ver.      Auth.    Description
 ## -- 2024-10-28  0.0.0     DA       Creation
-## -- 2024-10-29  1.0.0     DA       Initial implementation
+## -- 2024-11-23  1.0.0     DA       Initial implementation
 ## -------------------------------------------------------------------------------------------------
 
 """
-Ver. 1.0.0 (2024-10-29)
+Ver. 1.0.0 (2024-11-23)
 
-This module demonstrates 
+This sample demonstrates how to auto-renormalize multivariate drifting stream data. It combines
+cascaded adaptation with reverse adaptation to focus the entire processing on the buffered data
+of a sliding window. 
 
 You will learn:
 
-1) How to ...
+1) How to set up stream tasks, stream workflows and stream scenarios in MLPro
 
-2) How to ...
+2) How to visualize stream scenarios
 
-3) How to ...
+3) How to apply cascaded and reverse adaptation in own applications
 
 """
 
@@ -46,6 +48,11 @@ from mlpro.oa.streams.tasks import BoundaryDetector, Normalizer, NormalizerMinMa
 ## -------------------------------------------------------------------------------------------------
 ## -------------------------------------------------------------------------------------------------
 class MovingAverage (OATask, Properties):
+    """
+    Sample implementation of an online-adaptive stream task that buffers internal data relevant for
+    a renormalization whenever a prio normalizer changes it's parameters. Here, the moving average
+    of the incoming instances is calculated and stored. 
+    """
 
     C_NAME              = 'Moving average'
 
