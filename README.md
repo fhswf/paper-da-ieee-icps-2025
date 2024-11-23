@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/878929671.svg)](https://doi.org/10.5281/zenodo.13995893)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13995893.svg)](https://doi.org/10.5281/zenodo.13995893)
 
 # Paper IEEE ICPS 2025 - Arend/Schwung - "Online-adaptive data stream processing via cascaded and reverse adaptation"
 This repository provides the sample program described in Section _**IV. SAMPLE: AUTO-RENORMALIZATION OF DRIFTING
