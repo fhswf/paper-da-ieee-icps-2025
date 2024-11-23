@@ -13,5 +13,5 @@ authors:
 license: "Apache-2.0"
 version: "1.0.2"
 date-released: 2024-11-23
-doi: "10.5281/zenodo.13995893"
-url: "https://doi.org/10.5281/zenodo.13995893"
+doi: 10.5281/zenodo.13995893
+url: "https://github.com/fhswf/paper-da-ieee-icps-2025"
