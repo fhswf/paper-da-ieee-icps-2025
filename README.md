@@ -6,6 +6,9 @@ STREAM DATA" der obigen Publikation.
 
 ## How to execute
 
+[Python packages needed](requirements.txt)
+[Manual arrangement of the plot windows](video/window_arrangement.gif)
+
 ## Sample with 2 features (refers to the result plots in Fig. 3)
 
 ![video2d](video/sample_2D.gif)
@@ -21,3 +24,7 @@ STREAM DATA" der obigen Publikation.
 ## Sample with 7 features
 
 ![video7d](video/sample_7D.gif)
+
+
+## See also
+[MLPro - the integrative middleware framework for standardized machine learning in Python](https://mlpro.readthedocs.io/)
