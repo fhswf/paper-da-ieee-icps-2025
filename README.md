@@ -7,6 +7,7 @@ STREAM DATA" der obigen Publikation.
 ## How to execute
 
 [Python packages needed](requirements.txt)
+
 [Manual arrangement of the plot windows](video/window_arrangement.gif)
 
 ## Sample with 2 features (refers to the result plots in Fig. 3)
