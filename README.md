@@ -38,6 +38,8 @@ STREAM DATA**_ of the above conference paper.
 [South Westphalia University of Applied Sciences, Dept. of Automation Technology and Learning Systems](https://www.fh-swf.de/de/forschung___transfer_4/labore_3/labs/labor_fuer_automatisierungstechnik__soest_1/standardseite_57.php)
 
 
-## Contact
+## Contact us
 
 Detlef Arend: [email](mailto:arend.detlef@fh-swf.de?subject=Your%20paper%20on%20the%20ieee%20icsp%202025%20conference) [website](https://www.fh-swf.de/de/ueber_uns/standorte_4/soest_4/fb_eet/doz_eet/mitarbeiter_4/arend/index.php)
+
+Andreas Schwung: [email](mailto:schwung.andreas@fh-swf.de?subject=Your%20paper%20on%20the%20ieee%20icsp%202025%20conference) [website](https://www.fh-swf.de/de/ueber_uns/standorte_4/soest_4/fb_eet/doz_eet/profs_eet/schwung/index.php)
