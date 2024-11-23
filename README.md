@@ -28,4 +28,7 @@ STREAM DATA" der obigen Publikation.
 
 
 ## See also
+
 [MLPro - the integrative middleware framework for standardized machine learning in Python](https://mlpro.readthedocs.io/)
+
+[South Westphalia University of Applied Sciences, Dept. of Automation Technology and Learning Systems](https://www.fh-swf.de/de/forschung___transfer_4/labore_3/labs/labor_fuer_automatisierungstechnik__soest_1/standardseite_57.php)
