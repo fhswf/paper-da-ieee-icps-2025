@@ -3,4 +3,4 @@
 Paper Detlef Arend for the IEEE ICPS 2025 - "Online-adaptive data stream processing via cascaded and reverse adaptation"
 
 
-![Demo](video/sample 3D.gif)
+![Demo]("video/sample 3D.gif")
