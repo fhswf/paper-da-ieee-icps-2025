@@ -9,10 +9,11 @@
 ## -- yyyy-mm-dd  Ver.      Auth.    Description
 ## -- 2024-10-28  0.0.0     DA       Creation
 ## -- 2024-11-23  1.0.0     DA       Initial implementation
+## -- 2024-12-02  1.0.1     DA       Alignment with MLPro 1.9.4
 ## -------------------------------------------------------------------------------------------------
 
 """
-Ver. 1.0.0 (2024-11-23)
+Ver. 1.0.1 (2024-12-02)
 
 This sample demonstrates how to auto-renormalize multivariate drifting stream data. It combines
 cascaded adaptation with reverse adaptation to focus the entire processing on the buffered data
@@ -40,14 +41,14 @@ from mlpro.bf.math.geometry import cprop_crosshair
 from mlpro.bf.streams import *
 from mlpro.bf.streams.streams import StreamMLProClusterGenerator
 from mlpro.bf.streams.tasks import RingBuffer
-from mlpro.oa.streams import OATask, OAWorkflow, OAScenario
+from mlpro.oa.streams import OAStreamTask, OAStreamWorkflow, OAStreamScenario
 from mlpro.oa.streams.tasks import BoundaryDetector, Normalizer, NormalizerMinMax
 
 
 
 ## -------------------------------------------------------------------------------------------------
 ## -------------------------------------------------------------------------------------------------
-class MovingAverage (OATask, Properties):
+class MovingAverage (OAStreamTask, Properties):
     """
     Sample implementation of an online-adaptive stream task that buffers internal data relevant for
     a renormalization whenever a prio normalizer changes it's parameters. Here, the moving average
@@ -72,15 +73,15 @@ class MovingAverage (OATask, Properties):
         
         Properties.__init__( self, p_visualize = p_visualize )
        
-        OATask.__init__( self, 
-                         p_name = p_name, 
-                         p_range_max = p_range_max, 
-                         p_ada = p_ada, 
-                         p_buffer_size = p_buffer_size, 
-                         p_duplicate_data = p_duplicate_data, 
-                         p_visualize = p_visualize, 
-                         p_logging = p_logging, 
-                         **p_kwargs )
+        OAStreamTask.__init__( self, 
+                               p_name = p_name, 
+                               p_range_max = p_range_max, 
+                               p_ada = p_ada, 
+                               p_buffer_size = p_buffer_size, 
+                               p_duplicate_data = p_duplicate_data, 
+                               p_visualize = p_visualize, 
+                               p_logging = p_logging, 
+                               **p_kwargs )
                  
         self._moving_avg     = None
         self._num_inst       = 0
@@ -147,26 +148,26 @@ class MovingAverage (OATask, Properties):
 
 ## -------------------------------------------------------------------------------------------------
     def init_plot(self, p_figure = None, p_plot_settings = None):
-        OATask.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
+        OAStreamTask.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
         Properties.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
 
 
 ## -------------------------------------------------------------------------------------------------
     def update_plot(self, p_inst = None, **p_kwargs):
-        OATask.update_plot( self, p_inst = p_inst, **p_kwargs )
+        OAStreamTask.update_plot( self, p_inst = p_inst, **p_kwargs )
         Properties.update_plot( self, p_inst = p_inst, **p_kwargs )
 
 
 ## -------------------------------------------------------------------------------------------------
     def remove_plot(self, p_refresh = True):
-        OATask.remove_plot(self, p_refresh)
+        OAStreamTask.remove_plot(self, p_refresh)
         Properties.remove_plot(self, p_refresh)
 
 
 ## -------------------------------------------------------------------------------------------------
     def _finalize_plot_view(self, p_inst_ref):
         ps_old = self.get_plot_settings().copy()
-        OATask._finalize_plot_view(self,p_inst_ref)
+        OAStreamTask._finalize_plot_view(self,p_inst_ref)
         ps_new = self.get_plot_settings()
 
         if ps_new.view != ps_old.view:
@@ -179,7 +180,7 @@ class MovingAverage (OATask, Properties):
 
 ## -------------------------------------------------------------------------------------------------
 ## -------------------------------------------------------------------------------------------------
-class DemoScenario (OAScenario):
+class DemoScenario (OAStreamScenario):
 
     C_NAME = 'Normalized drifting data'
 
@@ -221,11 +222,11 @@ class DemoScenario (OAScenario):
         # 2 Set up a stream workflow based on a custom stream task
 
         # 2.1 Creation of a workflow
-        workflow = OAWorkflow( p_name = 'Input signal',
-                               p_range_max = OAWorkflow.C_RANGE_NONE,
-                               p_ada = p_ada,
-                               p_visualize = p_visualize, 
-                               p_logging = p_logging )
+        workflow = OAStreamWorkflow( p_name = 'Input signal',
+                                     p_range_max = OAStreamWorkflow.C_RANGE_NONE,
+                                     p_ada = p_ada,
+                                     p_visualize = p_visualize, 
+                                     p_logging = p_logging )
 
      
         # 2.2 Add a basic sliding window to buffer some data
@@ -248,6 +249,7 @@ class DemoScenario (OAScenario):
         
         workflow.add_task( p_task = task_ma1, p_pred_tasks = [ task_window ] )
 
+
         # 2.4 Add a boundary detector and connect to the ring buffer
         task_bd = BoundaryDetector( p_name = 'T3 - Boundary detector', 
                                     p_ada = p_ada, 
@@ -256,6 +258,7 @@ class DemoScenario (OAScenario):
 
         task_window.register_event_handler( p_event_id = RingBuffer.C_EVENT_DATA_REMOVED, p_event_handler = task_bd.adapt_on_event )
         workflow.add_task( p_task = task_bd, p_pred_tasks = [task_window] )
+
 
         # 2.5 Add a MinMax-Normalizer and connect to the boundary detector
         task_norm_minmax = NormalizerMinMax( p_name = 'T4 - MinMax normalizer', 
@@ -267,6 +270,7 @@ class DemoScenario (OAScenario):
         task_bd.register_event_handler( p_event_id = BoundaryDetector.C_EVENT_ADAPTED, p_event_handler = task_norm_minmax.adapt_on_event )
         workflow.add_task( p_task = task_norm_minmax, p_pred_tasks = [task_bd] )
 
+
         # 2.6 Add a moving average task for raw data behind the minmax-normalizer without reverse adaptation
         task_ma2 = MovingAverage( p_name = 'T5 - Moving average (normalized +)', 
                                   p_ada = p_ada,
@@ -276,6 +280,7 @@ class DemoScenario (OAScenario):
         
         workflow.add_task( p_task = task_ma2, p_pred_tasks = [ task_norm_minmax ] )
 
+
         # 2.7 Add a moving average task for raw data behind the minmax-normalizer without reverse adaptation
         task_ma3 = MovingAverage( p_name = 'T6 - Moving average (normalized +/-)', 
                                   p_ada = p_ada,
@@ -283,6 +288,7 @@ class DemoScenario (OAScenario):
                                   p_logging = p_logging )
         
         workflow.add_task( p_task = task_ma3, p_pred_tasks = [ task_norm_minmax ] )
+
 
         # 2.8 Add a moving average task for raw data behind the sliding window
         task_ma4 = MovingAverage( p_name = 'T7 - Moving average (renormalized +/-)', 
