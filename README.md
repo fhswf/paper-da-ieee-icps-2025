@@ -40,6 +40,6 @@ STREAM DATA**_ of the above conference paper.
 
 ## Contact us
 
-Detlef Arend: | [email](mailto:arend.detlef@fh-swf.de) | [orcid](https://orcid.org/0000-0002-8315-2346) | [researchgate](https://www.researchgate.net/profile/Detlef-Arend) | [linkedin](https://www.linkedin.com/in/detlef-arend-65170527b)
+Detlef Arend: [email](mailto:arend.detlef@fh-swf.de) | [orcid](https://orcid.org/0000-0002-8315-2346) | [researchgate](https://www.researchgate.net/profile/Detlef-Arend) | [linkedin](https://www.linkedin.com/in/detlef-arend-65170527b)
 
-Andreas Schwung: | [email](mailto:schwung.andreas@fh-swf.de) | [orcid](https://orcid.org/0000-0001-8405-0977) | [researchgate](https://www.researchgate.net/profile/Andreas-Schwung) |
+Andreas Schwung: [email](mailto:schwung.andreas@fh-swf.de) | [orcid](https://orcid.org/0000-0001-8405-0977) | [researchgate](https://www.researchgate.net/profile/Andreas-Schwung)
