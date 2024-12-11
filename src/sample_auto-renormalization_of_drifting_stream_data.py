@@ -31,8 +31,6 @@ You will learn:
 
 from datetime import datetime
 
-import numpy as np
-
 from mlpro.bf.various import Log
 from mlpro.bf.plot import PlotSettings
 from mlpro.bf.ops import Mode
