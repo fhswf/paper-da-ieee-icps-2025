@@ -12,7 +12,7 @@ STREAM DATA**_ of the above conference paper.
 
 [Step 2: Execute the sample program and follow the hints on the screen](src/sample_auto-renormalization_of_drifting_stream_data.py)
 
-[Step 3: Manually arrange the plot windows and press enter](video/window_arrangement.gif)
+[Step 3: Enter program parameters, arrange the plot windows once and start typing ENTER](video/window_arrangement.gif)
 
 ## Sample with 2 features (refers to the result plots in Fig. 3)
 
