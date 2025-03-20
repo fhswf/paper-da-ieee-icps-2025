@@ -6,25 +6,27 @@ STREAM DATA**_ of the above conference paper.
 
 ## How to execute
 
-[Step 1a: Install Python packages (stable) or](requirements_stable.txt)
+Step 1a: Install Python packages [(stable)](requirements_stable.txt) or
 
-[Step 1b: Install Python packages (latest)](requirements_latest.txt)
+Step 1b: Install Python packages [(latest)](requirements_latest.txt)
 
-[Step 2: Execute the sample program and follow the hints on the screen](src/sample_auto-renormalization_of_drifting_stream_data.py)
+Step 2: Execute the [sample program](src/sample_auto-renormalization_of_drifting_stream_data.py) and follow the hints on the screen [like this](video/window_arrangement.gif)
 
-[Step 3: Enter program parameters, arrange the plot windows once and start typing ENTER](video/window_arrangement.gif)
 
 ## Sample with 2 features (refers to the result plots in Fig. 3)
 
 ![video2d](video/sample_2D.gif)
 
+
 ## Sample with 3 features
 
 ![video3d](video/sample_3D.gif)
 
+
 ## Sample with 1 feature
 
 ![video1d](video/sample_1D.gif)
+
 
 ## Sample with 7 features
 
