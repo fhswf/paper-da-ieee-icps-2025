@@ -6,9 +6,7 @@ STREAM DATA**_ of the above conference paper.
 
 ## How to execute
 
-Step 1a: Install Python packages [(stable)](requirements_stable.txt) or
-
-Step 1b: Install Python packages [(latest)](requirements_latest.txt)
+Step 1: Install the required Python packages ([stable](requirements_stable.txt) or [latest](requirements_latest.txt))
 
 Step 2: Execute the [sample program](src/sample_auto-renormalization_of_drifting_stream_data.py) and follow the hints on the screen [like this](video/window_arrangement.gif)
 
