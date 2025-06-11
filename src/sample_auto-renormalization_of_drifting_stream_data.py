@@ -10,6 +10,7 @@
 ## -- 2024-10-28  0.0.0     DA       Creation
 ## -- 2024-11-23  1.0.0     DA       Initial implementation
 ## -- 2024-12-02  1.0.1     DA       Alignment with MLPro 1.9.4
+## -- 2025-06-11  1.1.0     DA       Alignment with MLPro 2.0.2
 ## -------------------------------------------------------------------------------------------------
 
 """
@@ -36,11 +37,12 @@ from mlpro.bf.plot import PlotSettings
 from mlpro.bf.ops import Mode
 from mlpro.bf.math.properties import Properties
 from mlpro.bf.math.geometry import cprop_crosshair
+from mlpro.bf.math.normalizers import Normalizer
 from mlpro.bf.streams import *
 from mlpro.bf.streams.streams import StreamMLProClusterGenerator
 from mlpro.bf.streams.tasks import RingBuffer
 from mlpro.oa.streams import OAStreamTask, OAStreamWorkflow, OAStreamScenario
-from mlpro.oa.streams.tasks import BoundaryDetector, Normalizer, NormalizerMinMax
+from mlpro.oa.streams.tasks import BoundaryDetector, NormalizerMinMax
 
 
 
@@ -88,7 +90,7 @@ class MovingAverage (OAStreamTask, Properties):
 
 
 ## -------------------------------------------------------------------------------------------------
-    def _run(self, p_inst):
+    def _run(self, p_instances : InstDict ):
 
         # 0 Intro
         inst_avg_id     = -1
@@ -96,7 +98,7 @@ class MovingAverage (OAStreamTask, Properties):
 
         
         # 1 Process all incoming new/obsolete stream instances
-        for inst_id, (inst_type, inst) in p_inst.items():
+        for inst_id, (inst_type, inst) in p_instances.items():
 
             feature_data = inst.get_feature_data().get_values()
 
@@ -121,7 +123,7 @@ class MovingAverage (OAStreamTask, Properties):
 
             
         # 2 Clear all incoming stream instances
-        p_inst.clear()
+        p_instances.clear()
 
 
         # 3 Add a new stream instance containing the moving average 
@@ -130,7 +132,7 @@ class MovingAverage (OAStreamTask, Properties):
         inst_avg            = Instance( p_feature_data = inst_avg_data, p_tstamp = inst_avg_tstamp )
         inst_avg.id         = inst_avg_id
 
-        p_inst[inst_avg.id] = ( InstTypeNew, inst_avg )
+        p_instances[inst_avg.id] = ( InstTypeNew, inst_avg )
 
         self.crosshair.value = self._moving_avg
  
@@ -252,9 +254,9 @@ class DemoScenario (OAStreamScenario):
         task_bd = BoundaryDetector( p_name = 'T3 - Boundary detector', 
                                     p_ada = p_ada, 
                                     p_visualize = p_visualize,
-                                    p_logging = p_logging )
+                                    p_logging = p_logging,
+                                    p_boundary_provider = task_window )
 
-        task_window.register_event_handler( p_event_id = RingBuffer.C_EVENT_DATA_REMOVED, p_event_handler = task_bd.adapt_on_event )
         workflow.add_task( p_task = task_bd, p_pred_tasks = [task_window] )
 
 
