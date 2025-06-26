@@ -36,10 +36,11 @@ from datetime import datetime
 from mlpro.bf.various import Log
 from mlpro.bf.plot import PlotSettings
 from mlpro.bf.ops import Mode
+from mlpro.bf.math import Element
 from mlpro.bf.math.properties import Properties
 from mlpro.bf.math.geometry import cprop_crosshair
 from mlpro.bf.math.normalizers import Normalizer
-from mlpro.bf.streams import *
+from mlpro.bf.streams import InstDict, InstTypeNew, InstTypeDel, Instance
 from mlpro.bf.streams.streams import StreamMLProClusterGenerator
 from mlpro.bf.streams.tasks import RingBuffer
 from mlpro.oa.streams import OAStreamTask, OAStreamWorkflow, OAStreamScenario
@@ -63,7 +64,7 @@ class MovingAverage (OAStreamTask, Properties):
 ## -------------------------------------------------------------------------------------------------
     def __init__( self, 
                   p_name = None, 
-                  p_range_max = StreamTask.C_RANGE_THREAD, 
+                  p_range_max = OAStreamTask.C_RANGE_THREAD, 
                   p_ada : bool = True, 
                   p_buffer_size : int = 0, 
                   p_duplicate_data : bool = False, 
@@ -154,9 +155,9 @@ class MovingAverage (OAStreamTask, Properties):
 
 
 ## -------------------------------------------------------------------------------------------------
-    def update_plot(self, p_inst = None, **p_kwargs):
-        OAStreamTask.update_plot( self, p_inst = p_inst, **p_kwargs )
-        Properties.update_plot( self, p_inst = p_inst, **p_kwargs )
+    def update_plot(self, p_instances : InstDict = None, **p_kwargs):
+        OAStreamTask.update_plot( self, p_instances = p_instances, **p_kwargs )
+        Properties.update_plot( self, p_instances = p_instances, **p_kwargs )
 
 
 ## -------------------------------------------------------------------------------------------------
@@ -314,7 +315,7 @@ class DemoScenario (OAStreamScenario):
 num_features    = 2
 num_inst        = 500
 logging         = Log.C_LOG_WE
-step_rate       = 2
+step_rate       = 1
 view            = PlotSettings.C_VIEW_ND
 view_autoselect = True
 
