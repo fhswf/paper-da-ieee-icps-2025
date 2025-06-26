@@ -11,10 +11,11 @@
 ## -- 2024-11-23  1.0.0     DA       Initial implementation
 ## -- 2024-12-02  1.0.1     DA       Alignment with MLPro 1.9.4
 ## -- 2025-06-11  1.1.0     DA       Alignment with MLPro 2.0.2
+## -- 2025-06-26  1.1.1     DA       Alignment with MLPro 2.0.2 
 ## -------------------------------------------------------------------------------------------------
 
 """
-Ver. 1.0.1 (2024-12-02)
+Ver. 1.0.2 (2025-06-26)
 
 This sample demonstrates how to auto-renormalize multivariate drifting stream data. It combines
 cascaded adaptation with reverse adaptation to focus the entire processing on the buffered data
@@ -365,7 +366,7 @@ if visualize:
     myscenario.init_plot( p_plot_settings=PlotSettings( p_view = view,
                                                         p_view_autoselect = view_autoselect,
                                                         p_plot_horizon = 100,
-                                                        p_data_horizon = 150,
+                                                        p_data_horizon = num_inst,
                                                         p_step_rate = step_rate ) )
 
     input('\n\nPlease arrange all windows and press ENTER to start stream processing...')
