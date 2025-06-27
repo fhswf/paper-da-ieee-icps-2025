@@ -12,10 +12,11 @@
 ## -- 2024-12-02  1.0.1     DA       Alignment with MLPro 1.9.4
 ## -- 2025-06-11  1.1.0     DA       Alignment with MLPro 2.0.2
 ## -- 2025-06-26  1.1.1     DA       Alignment with MLPro 2.0.2 
+## -- 2025-06-27  1.1.2     DA       Corrections in class MovingAverage
 ## -------------------------------------------------------------------------------------------------
 
 """
-Ver. 1.0.2 (2025-06-26)
+Ver. 1.1.2 (2025-06-27)
 
 This sample demonstrates how to auto-renormalize multivariate drifting stream data. It combines
 cascaded adaptation with reverse adaptation to focus the entire processing on the buffered data
@@ -151,19 +152,20 @@ class MovingAverage (OAStreamTask, Properties):
 ## -------------------------------------------------------------------------------------------------
     def init_plot(self, p_figure = None, p_plot_settings = None):
         OAStreamTask.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
-        Properties.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
+        self.crosshair.init_plot( p_figure = self._figure, 
+                                  p_plot_settings = self.get_plot_settings() )
 
 
 ## -------------------------------------------------------------------------------------------------
     def update_plot(self, p_instances : InstDict = None, **p_kwargs):
         OAStreamTask.update_plot( self, p_instances = p_instances, **p_kwargs )
-        Properties.update_plot( self, p_instances = p_instances, **p_kwargs )
+        self.crosshair.update_plot( p_instances = p_instances, **p_kwargs )
 
 
 ## -------------------------------------------------------------------------------------------------
     def remove_plot(self, p_refresh = True):
         OAStreamTask.remove_plot(self, p_refresh)
-        Properties.remove_plot(self, p_refresh)
+        self.crosshair.remove_plot( p_refresh)
 
 
 ## -------------------------------------------------------------------------------------------------
@@ -174,7 +176,7 @@ class MovingAverage (OAStreamTask, Properties):
 
         if ps_new.view != ps_old.view:
             self.crosshair._plot_initialized = False
-            Properties.init_plot( self, p_figure = self._figure, p_plot_settings = ps_new )
+            self.crosshair.init_plot( p_figure = self._figure, p_plot_settings = ps_new )
  
 
 
@@ -315,7 +317,7 @@ class DemoScenario (OAStreamScenario):
 num_features    = 2
 num_inst        = 500
 logging         = Log.C_LOG_WE
-step_rate       = 1
+step_rate       = 2
 view            = PlotSettings.C_VIEW_ND
 view_autoselect = True
 
@@ -330,6 +332,7 @@ print('-------------------------------------------------------------------------
 
 # 1.3 Get cycle limit from user
 i = input(f'Number of stream instances (press ENTER for {num_inst}): ')
+
 if i != '': num_inst = int(i)
 
 # 1.4 Get visualization from user
