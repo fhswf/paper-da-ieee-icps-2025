@@ -238,7 +238,6 @@ class DemoScenario (OAStreamScenario):
                                   p_delay = True,
                                   p_enable_statistics = True,
                                   p_name = 'T1 - Sliding window',
-                                  p_duplicate_data = True,
                                   p_visualize = p_visualize,
                                   p_logging = p_logging )
         
