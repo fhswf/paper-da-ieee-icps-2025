@@ -268,7 +268,9 @@ class DemoScenario (OAStreamScenario):
                                              p_ada = p_ada, 
                                              p_duplicate_data = True,
                                              p_visualize = p_visualize, 
-                                             p_logging = p_logging )
+                                             p_logging = p_logging,
+                                             p_param_snapshots = False,
+                                             p_dst_boundaries=[-1,1] )
 
         task_bd.register_event_handler( p_event_id = BoundaryDetector.C_EVENT_ADAPTED, p_event_handler = task_norm_minmax.adapt_on_event )
         workflow.add_task( p_task = task_norm_minmax, p_pred_tasks = [task_bd] )
