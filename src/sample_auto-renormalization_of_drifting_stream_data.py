@@ -13,10 +13,11 @@
 ## -- 2025-06-11  1.1.0     DA       Alignment with MLPro 2.0.2
 ## -- 2025-06-26  1.1.1     DA       Alignment with MLPro 2.0.2 
 ## -- 2025-06-27  1.1.2     DA       Corrections in class MovingAverage
+## -- 2025-07-11  1.2.0     DA       Alignment with MLPro 2.0.3
 ## -------------------------------------------------------------------------------------------------
 
 """
-Ver. 1.1.2 (2025-06-27)
+Ver. 1.2.0 (2025-07-11)
 
 This sample demonstrates how to auto-renormalize multivariate drifting stream data. It combines
 cascaded adaptation with reverse adaptation to focus the entire processing on the buffered data
@@ -45,140 +46,7 @@ from mlpro.bf.streams import InstDict, InstTypeNew, InstTypeDel, Instance
 from mlpro.bf.streams.streams import StreamMLProClusterGenerator
 from mlpro.bf.streams.tasks import RingBuffer
 from mlpro.oa.streams import OAStreamTask, OAStreamWorkflow, OAStreamScenario
-from mlpro.oa.streams.tasks import BoundaryDetector, NormalizerMinMax
-
-
-
-## -------------------------------------------------------------------------------------------------
-## -------------------------------------------------------------------------------------------------
-class MovingAverage (OAStreamTask, Properties):
-    """
-    Sample implementation of an online-adaptive stream task that buffers internal data relevant for
-    a renormalization whenever a prio normalizer changes it's parameters. Here, the moving average
-    of the incoming instances is calculated and stored. 
-    """
-
-    C_NAME              = 'Moving average'
-
-    C_PROPERTIES        = [ cprop_crosshair ]   
-
-## -------------------------------------------------------------------------------------------------
-    def __init__( self, 
-                  p_name = None, 
-                  p_range_max = OAStreamTask.C_RANGE_THREAD, 
-                  p_ada : bool = True, 
-                  p_buffer_size : int = 0, 
-                  p_duplicate_data : bool = False, 
-                  p_visualize : bool = False, 
-                  p_logging = Log.C_LOG_ALL, 
-                  p_remove_obs : bool = True,
-                  **p_kwargs ):
-        
-        Properties.__init__( self, p_visualize = p_visualize )
-       
-        OAStreamTask.__init__( self, 
-                               p_name = p_name, 
-                               p_range_max = p_range_max, 
-                               p_ada = p_ada, 
-                               p_buffer_size = p_buffer_size, 
-                               p_duplicate_data = p_duplicate_data, 
-                               p_visualize = p_visualize, 
-                               p_logging = p_logging, 
-                               **p_kwargs )
-                 
-        self._moving_avg     = None
-        self._num_inst       = 0
-        self._remove_obs     = p_remove_obs
-        self.crosshair.color = 'red'
-
-
-## -------------------------------------------------------------------------------------------------
-    def _run(self, p_instances : InstDict ):
-
-        # 0 Intro
-        inst_avg_id     = -1
-        inst_avg_tstamp = None
-
-        
-        # 1 Process all incoming new/obsolete stream instances
-        for inst_id, (inst_type, inst) in p_instances.items():
-
-            feature_data = inst.get_feature_data().get_values()
-
-            if inst_type == InstTypeNew:
-                if self._moving_avg is None:
-                    self._moving_avg = feature_data.copy() 
-                else:
-                    self._moving_avg = ( self._moving_avg * self._num_inst + feature_data ) / ( self._num_inst + 1 )
-
-                self._num_inst += 1
-
-            elif ( inst_type == InstTypeDel ) and self._remove_obs:
-                self._moving_avg = ( self._moving_avg * self._num_inst - feature_data ) / ( self._num_inst - 1 )
-                self._num_inst  -= 1
-
-            if inst_id > inst_avg_id:
-                inst_avg_id     = inst_id
-                inst_avg_tstamp = inst.tstamp
-                feature_set     = inst.get_feature_data().get_related_set()
-
-        if inst_avg_id == -1: return
-
-            
-        # 2 Clear all incoming stream instances
-        p_instances.clear()
-
-
-        # 3 Add a new stream instance containing the moving average 
-        inst_avg_data       = Element( p_set = feature_set )
-        inst_avg_data.set_values( p_values = self._moving_avg.copy() )
-        inst_avg            = Instance( p_feature_data = inst_avg_data, p_tstamp = inst_avg_tstamp )
-        inst_avg.id         = inst_avg_id
-
-        p_instances[inst_avg.id] = ( InstTypeNew, inst_avg )
-
-        self.crosshair.value = self._moving_avg
- 
-
-## -------------------------------------------------------------------------------------------------
-    def _renormalize(self, p_normalizer: Normalizer):
-        try:
-            self._moving_avg = p_normalizer.renormalize( p_data = self._moving_avg.copy() )
-            self.log(Log.C_LOG_TYPE_W, 'Moving avg renormalized')
-        except:
-            pass
-
-
-## -------------------------------------------------------------------------------------------------
-    def init_plot(self, p_figure = None, p_plot_settings = None):
-        OAStreamTask.init_plot( self, p_figure = p_figure, p_plot_settings = p_plot_settings )
-        self.crosshair.init_plot( p_figure = self._figure, 
-                                  p_plot_settings = self.get_plot_settings() )
-
-
-## -------------------------------------------------------------------------------------------------
-    def update_plot(self, p_instances : InstDict = None, **p_kwargs):
-        OAStreamTask.update_plot( self, p_instances = p_instances, **p_kwargs )
-        self.crosshair.update_plot( p_instances = p_instances, **p_kwargs )
-
-
-## -------------------------------------------------------------------------------------------------
-    def remove_plot(self, p_refresh = True):
-        OAStreamTask.remove_plot(self, p_refresh)
-        self.crosshair.remove_plot( p_refresh)
-
-
-## -------------------------------------------------------------------------------------------------
-    def _finalize_plot_view(self, p_inst_ref):
-        ps_old = self.get_plot_settings().copy()
-        OAStreamTask._finalize_plot_view(self,p_inst_ref)
-        ps_new = self.get_plot_settings()
-
-        if ps_new.view != ps_old.view:
-            self.crosshair._plot_initialized = False
-            self.crosshair.init_plot( p_figure = self._figure, p_plot_settings = ps_new )
- 
-
+from mlpro.oa.streams.tasks import BoundaryDetector, NormalizerMinMax, MovingAverage
 
 
 
@@ -299,7 +167,9 @@ class DemoScenario (OAStreamScenario):
                                   p_ada = p_ada,
                                   p_visualize = p_visualize,
                                   p_logging = p_logging,
-                                  p_centroid_crosshair_labels = False )
+                                  p_centroid_crosshair_labels = False,
+                                  p_remove_obs = True,
+                                  p_renormalize_plot_data = False )
         
         workflow.add_task( p_task = task_ma4, p_pred_tasks = [ task_norm_minmax ] )
         task_norm_minmax.register_event_handler( p_event_id = NormalizerMinMax.C_EVENT_ADAPTED, p_event_handler = task_ma4.renormalize_on_event )
